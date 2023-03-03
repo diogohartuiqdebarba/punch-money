@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody), typeof(BoxCollider))]
 public class PlayerController : MonoBehaviour
 {
-  [SerializeField] private Rigidbody rigidbody;
+  [SerializeField] private Rigidbody playerRigidbody;
   [SerializeField] private FixedJoystick joystick;
   [SerializeField] private Animator animator;
 
@@ -13,11 +13,10 @@ public class PlayerController : MonoBehaviour
 
   private void FixedUpdate()
   {
-    rigidbody.velocity = new Vector3(joystick.Horizontal * moveSpeed, rigidbody.velocity.y, joystick.Vertical * moveSpeed);
-
+    playerRigidbody.velocity = new Vector3(joystick.Horizontal * moveSpeed, playerRigidbody.velocity.y, joystick.Vertical * moveSpeed);
     if (joystick.Horizontal != 0 || joystick.Vertical != 0)
     {
-      transform.rotation = Quaternion.LookRotation(rigidbody.velocity);
+      transform.rotation = Quaternion.LookRotation(playerRigidbody.velocity);
       animator.SetBool("isWalking", true);
     }
     else
