@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
   [SerializeField] private Animator animator;
 
   [SerializeField] private float moveSpeed;
+  public bool isWalking = false;
 
   private void FixedUpdate()
   {
@@ -17,11 +18,13 @@ public class PlayerController : MonoBehaviour
     if (joystick.Horizontal != 0 || joystick.Vertical != 0)
     {
       transform.rotation = Quaternion.LookRotation(playerRigidbody.velocity);
-      animator.SetBool("isWalking", true);
+      isWalking = true;
+      animator.SetBool("isWalking", isWalking);
     }
     else
     {
-      animator.SetBool("isWalking", false);
+      isWalking = false;
+      animator.SetBool("isWalking", isWalking);
     }
   }
 }
