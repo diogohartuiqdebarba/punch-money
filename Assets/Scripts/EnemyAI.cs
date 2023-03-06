@@ -6,6 +6,7 @@ public class EnemyAI : MonoBehaviour
   [SerializeField] private float moveSpeed = 2f;
   [SerializeField] private float changeDirectionInterval = 5f;
   [SerializeField] private float rotationSpeed = 12f;
+  public bool enabledAI;
   private Vector3 moveDirection;
   private float timeSinceLastDirectionChange;
   private Rigidbody rb;
@@ -20,65 +21,72 @@ public class EnemyAI : MonoBehaviour
   private float delayToChangeDirectionAfterStuck = 0.0f;
   private float delayToStuck = 0.0f;
 
+
   void Start()
   {
     rb = GetComponent<Rigidbody>();
     animator = GetComponent<Animator>();
     GetRandomDirection();
+    enabledAI = true;
   }
 
   void FixedUpdate()
   {
-    rb.velocity = moveDirection * moveSpeed;
-    timeSinceLastDirectionChange += Time.fixedDeltaTime;
-    if (timeSinceLastDirectionChange >= changeDirectionInterval)
+    if (enabledAI)
     {
-      GetRandomDirection();
-    }
-    BlockedInfo blockedInfo = IsBlocked();
-    switch (blockedInfo.blockedState)
-    {
-      case BLOCKED_STATE.No:
-        // Do nothing
-        break;
-      case BLOCKED_STATE.Player:
-        // Stop and rotate towards the player
-        moveDirection = Vector3.zero;
-        Debug.Log("49: ZERO!");
-        targetRotation = Quaternion.LookRotation(blockedInfo.hit.transform.position - transform.position, Vector3.up);
-        break;
-      case BLOCKED_STATE.Others:
-        // Get stuck for 3 seconds
-        if (delayToChangeDirectionAfterStuck >= 3.0f)
-        {
-          GetRandomDirection();
-          delayToStuck = 3.0f;
-          delayToChangeDirectionAfterStuck = 0f;
-        }
-        else
-        {
-          if (delayToStuck <= 0.0f)
+      rb.velocity = moveDirection * moveSpeed;
+      timeSinceLastDirectionChange += Time.fixedDeltaTime;
+      if (timeSinceLastDirectionChange >= changeDirectionInterval)
+      {
+        GetRandomDirection();
+      }
+      BlockedInfo blockedInfo = IsBlocked();
+      switch (blockedInfo.blockedState)
+      {
+        case BLOCKED_STATE.No:
+          // Do nothing
+          break;
+        case BLOCKED_STATE.Player:
+          // Stop and rotate towards the player
+          moveDirection = Vector3.zero;
+          targetRotation = Quaternion.LookRotation(blockedInfo.hit.transform.position - transform.position, Vector3.up);
+          break;
+        case BLOCKED_STATE.Others:
+          // Get stuck for 3 seconds
+          if (delayToChangeDirectionAfterStuck >= 3.0f)
           {
-            moveDirection = Vector3.zero;
-            Debug.Log("64: ZERO!");
-            delayToChangeDirectionAfterStuck += Time.fixedDeltaTime;
+            GetRandomDirection();
+            delayToStuck = 3.0f;
+            delayToChangeDirectionAfterStuck = 0f;
           }
           else
           {
-            delayToStuck -= Time.fixedDeltaTime;
+            if (delayToStuck <= 0.0f)
+            {
+              moveDirection = Vector3.zero;
+              delayToChangeDirectionAfterStuck += Time.fixedDeltaTime;
+            }
+            else
+            {
+              delayToStuck -= Time.fixedDeltaTime;
+            }
           }
-        }
-        break;
-    }
-    if (rb.velocity.magnitude < 0.01f)
-    {
-      animator.SetBool("isWalking", false);
+          break;
+      }
+      if (rb.velocity.magnitude < 0.01f)
+      {
+        animator.SetBool("isWalking", false);
+      }
+      else
+      {
+        animator.SetBool("isWalking", true);
+      }
+      transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
     }
     else
     {
       animator.SetBool("isWalking", true);
     }
-    transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
   }
 
   private void GetRandomDirection()
