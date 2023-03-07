@@ -6,7 +6,7 @@ public class EnemyHealth : MonoBehaviour
   private int currentHealth;
   public UnityEvent onDeath;
 
-  private void Die()
+  public void Die()
   {
     onDeath.Invoke();
     Destroy(gameObject);

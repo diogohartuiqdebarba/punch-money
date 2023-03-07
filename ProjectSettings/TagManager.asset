@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Enemy
   - EnemyStackParent
+  - MoneyText
+  - BuyLevelButton
+  - MoneyImage
   layers:
   - Default
   - TransparentFX
