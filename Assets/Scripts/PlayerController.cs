@@ -9,35 +9,88 @@ public class PlayerController : MonoBehaviour
   [SerializeField] private Rigidbody playerRigidbody;
   [SerializeField] private FixedJoystick joystick;
   [SerializeField] private Animator animator;
-
   [SerializeField] private float moveSpeed;
+
+  private GameObject enemyStackParent;
   public bool isWalking = false;
   private int level = 1;
   private int money = 0;
+  private int stackCapacity = 5;
+  public int enemiesStacked = 0;
 
   private Renderer playerRenderer;
   private Image moneyImage;
   private Text moneyText;
   private Button buyLevelButton;
+  private Text buyLevelButtonText;
 
-  private bool isScaling;
+  private bool isScalingMoneyImage;
+  private bool isScalingBuyLevelButton;
+  private EnemySale moneyPlace;
+
+  public void AddMoney(int amount)
+  {
+    money += amount;
+    UpdateMoneyUI();
+  }
+
+  public void BuyLevel()
+  {
+    if (money >= 50)
+    {
+      money -= 50;
+      LevelUp();
+      UpdateMoneyUI();
+      moneyText.enabled = true;
+      buyLevelButton.gameObject.SetActive(false);
+      isScalingMoneyImage = false;
+      isScalingBuyLevelButton = false;
+      StackCapacityUp();
+    }
+  }
+
+  public bool CanStack()
+  {
+    if (enemiesStacked < stackCapacity)
+    {
+      return true;
+    }
+    if (!isScalingMoneyImage && !buyLevelButton.gameObject.activeSelf)
+    {
+      moneyPlace.BlinkMoneySalePlace();
+      StartCoroutine(ScaleMoneyImage());
+    }
+    else if (!isScalingBuyLevelButton && buyLevelButton.gameObject.activeSelf)
+    {
+      StartCoroutine(ScaleAndShineButton(buyLevelButton));
+    }
+    return false;
+  }
 
   private void Start()
   {
     playerRenderer = transform.GetChild(0).GetComponent<Renderer>();
     moneyImage = GameObject.Find("MoneyImage").GetComponent<Image>();
+    moneyPlace = GameObject.Find("MoneyPlace").GetComponent<EnemySale>();
     moneyText = GameObject.Find("MoneyText").GetComponent<Text>();
     buyLevelButton = GameObject.Find("BuyLevelButton").GetComponent<Button>();
+    buyLevelButtonText = buyLevelButton.transform.GetChild(0).GetComponent<Text>();
+    UpdateLevelButtonTextUI();
     buyLevelButton.gameObject.SetActive(false);
     UpdateMoneyUI();
-    isScaling = false;
+    isScalingMoneyImage = false;
+    enemyStackParent = GameObject.FindWithTag("EnemyStackParent");
   }
 
   private void Update()
   {
     if (money >= 50)
     {
-      if (!isScaling) StartCoroutine(ScaleMoneyImage());
+      if (!isScalingMoneyImage && !buyLevelButton.gameObject.activeSelf)
+      {
+        moneyPlace.BlinkMoneySalePlace();
+        StartCoroutine(ScaleMoneyImage());
+      }
     }
     else
     {
@@ -62,25 +115,6 @@ public class PlayerController : MonoBehaviour
     }
   }
 
-  public void AddMoney(int amount)
-  {
-    money += amount;
-    UpdateMoneyUI();
-  }
-
-  public void BuyLevel()
-  {
-    if (money >= 50)
-    {
-      money -= 50;
-      LevelUp();
-      UpdateMoneyUI();
-      moneyText.enabled = true;
-      buyLevelButton.gameObject.SetActive(false);
-      isScaling = false;
-    }
-  }
-
   private void LevelUp()
   {
     level++;
@@ -99,9 +133,14 @@ public class PlayerController : MonoBehaviour
     moneyText.text = money.ToString();
   }
 
+  private void UpdateLevelButtonTextUI()
+  {
+    buyLevelButtonText.text = "Buy Level Up " + level.ToString();
+  }
+
   private IEnumerator ScaleMoneyImage()
   {
-    isScaling = true;
+    isScalingMoneyImage = true;
     float scaleFactor = 1.5f;
     float duration = 0.5f;
     Vector3 originalScale = moneyImage.transform.localScale;
@@ -130,10 +169,36 @@ public class PlayerController : MonoBehaviour
       yield return null;
     }
 
-    // Finalize
+    UpdateLevelButtonTextUI();
     moneyText.enabled = false;
     buyLevelButton.gameObject.SetActive(true);
     yield return new WaitForSeconds(0.65f);
+    isScalingMoneyImage = false;
+  }
+
+  private void StackCapacityUp()
+  {
+    stackCapacity++;
+  }
+
+  IEnumerator ScaleAndShineButton(Button button)
+  {
+    isScalingBuyLevelButton = true;
+    Vector3 originalScale = new Vector3(1, 1, 1);
+    button.transform.localScale = originalScale;
+    float scaleDuration = 0.5f;
+    float scaleElapsedTime = 0f;
+    float maxScale = 1.2f;
+    while (scaleElapsedTime < scaleDuration)
+    {
+      scaleElapsedTime += Time.deltaTime;
+      float t = Mathf.Clamp01(scaleElapsedTime / scaleDuration);
+      float scale = Mathf.Lerp(0.5f, maxScale, t);
+      button.transform.localScale = originalScale * scale;
+      yield return null;
+    }
+    button.transform.localScale = originalScale;
+    isScalingBuyLevelButton = false;
   }
 
 }

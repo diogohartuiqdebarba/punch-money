@@ -9,6 +9,7 @@ TagManager:
   - MoneyText
   - BuyLevelButton
   - MoneyImage
+  - MoneyPlace
   layers:
   - Default
   - TransparentFX

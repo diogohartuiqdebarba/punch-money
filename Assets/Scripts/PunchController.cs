@@ -11,21 +11,24 @@ public class PunchController : MonoBehaviour
   private Rigidbody punchTarget;
   private Rigidbody characterRb;
   private Coroutine punchFXTask;
+  private PlayerController playerController;
 
   private void Start()
   {
     punchImage.enabled = false;
     characterRb = GetComponentInParent<Rigidbody>();
+    playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
   }
 
   private void OnTriggerEnter(Collider other)
   {
     EnemyAI enemyScript = other.GetComponent<EnemyAI>();
-    if (other.CompareTag("Enemy") && !isPunching && enemyScript.enabledAI)
+    if (other.CompareTag("Enemy") && playerController.CanStack() && !isPunching && enemyScript.enabledAI)
     {
-      punchTarget = other.GetComponent<Rigidbody>();
-      StartCoroutine(PunchRoutine(other.gameObject));
       isPunching = true;
+      punchTarget = other.GetComponent<Rigidbody>();
+      playerController.enemiesStacked++;
+      StartCoroutine(PunchRoutine(other.gameObject));
       enemyScript.enabledAI = false;
     }
   }

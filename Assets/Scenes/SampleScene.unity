@@ -1482,7 +1482,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Buy Level Up
+  m_Text: Buy Level Up 1
 --- !u!222 &838051996
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3226,7 +3226,7 @@ GameObject:
   - component: {fileID: 1992425509}
   - component: {fileID: 1992425508}
   m_Layer: 0
-  m_Name: Floor (5)
+  m_Name: MoneyPlaceRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3518,7 +3518,7 @@ GameObject:
   - component: {fileID: 2127573937}
   m_Layer: 0
   m_Name: MoneyPlace
-  m_TagString: Untagged
+  m_TagString: MoneyPlace
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3571,6 +3571,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56bfcf1a32de131489bd2276d0be7612, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moneyPlaceRenderer: {fileID: 1992425509}
 --- !u!1001 &1402403071156725706
 PrefabInstance:
   m_ObjectHideFlags: 0
